@@ -435,163 +435,176 @@ ul.neon-bullets li::before {
     border-color: rgba(255,255,255,0.2);
 }
 
-/* Accordion */
-.accordion-container {
-    max-width: 900px;
-    margin: 0 auto;
+/* Training Dashboard */
+.dashboard-controls {
+    margin-bottom: 3rem;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    align-items: center;
 }
 
-.accordion {
-    margin-bottom: 1rem;
+.week-nav-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    padding-bottom: 1rem;
+    scrollbar-width: thin;
+    scrollbar-color: var(--neon-green) transparent;
 }
 
-.accordion-header {
+.week-nav {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: flex-start;
+    min-width: max-content;
+    padding: 0 1rem;
+}
+
+.week-btn {
     background: var(--card-bg);
     border: 1px solid var(--card-border);
-    padding: 1.5rem 2rem;
-    border-radius: 8px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+    color: var(--text-secondary);
+    padding: 0.8rem 1.2rem;
+    border-radius: 4px;
     cursor: pointer;
+    font-family: var(--font-heading);
+    font-weight: 600;
+    transition: var(--transition);
+    white-space: nowrap;
+}
+
+.week-btn:hover {
+    border-color: var(--neon-green-glow);
+    color: #fff;
+}
+
+.week-btn.active {
+    background: var(--neon-green);
+    color: var(--bg-primary);
+    border-color: var(--neon-green);
+    box-shadow: 0 0 15px var(--neon-green-glow);
+}
+
+.athlete-toggle-nav {
+    display: flex;
+    background: rgba(255,255,255,0.05);
+    padding: 0.4rem;
+    border-radius: 30px;
+    border: 1px solid var(--card-border);
+}
+
+.athlete-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    padding: 0.6rem 1.5rem;
+    border-radius: 25px;
+    cursor: pointer;
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 0.9rem;
     transition: var(--transition);
 }
 
-.accordion-header h3 {
-    font-size: 1.3rem;
-    margin: 0;
-    display: flex;
-    align-items: center;
-    gap: 1rem;
+.athlete-btn:hover {
+    color: #fff;
 }
 
-.phase-weeks {
-    font-size: 0.9rem;
-    color: var(--text-secondary);
-    font-weight: 400;
+.athlete-btn.active {
+    background: var(--neon-green);
+    color: var(--bg-primary);
 }
 
-.accordion-header:hover {
-    background: rgba(255,255,255,0.08);
-    border-color: rgba(188, 255, 0, 0.5);
+.dashboard-content {
+    min-height: 400px;
 }
 
-.accordion-header i {
-    transition: transform 0.3s ease;
-    color: var(--neon-green);
-}
-
-.accordion.active .accordion-header {
-    border-bottom-left-radius: 0;
-    border-bottom-right-radius: 0;
-    border-bottom-color: transparent;
-    background: rgba(188, 255, 0, 0.05);
-}
-
-.accordion.active .accordion-header i {
-    transform: rotate(180deg);
-}
-
-.accordion-content {
-    display: none;
-    padding: 2rem;
-    border-top-left-radius: 0;
-    border-top-right-radius: 0;
-    border-top: none;
-}
-
-.accordion-content.active {
-    display: block;
-    animation: fadeIn 0.4s ease forwards;
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(-10px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-.accordion-content h4 {
-    color: var(--neon-green);
-    margin-bottom: 0.5rem;
-}
-
-.accordion-content > p {
+.phase-indicator {
+    text-align: center;
     margin-bottom: 2rem;
-    color: var(--text-secondary);
-    font-size: 1.1rem;
 }
 
-.athlete-plan-split {
+#current-phase-name {
+    font-family: var(--font-heading);
+    font-size: 1.2rem;
+    letter-spacing: 2px;
+    color: var(--neon-green);
+    border-bottom: 2px solid var(--neon-green);
+    padding-bottom: 0.5rem;
+}
+
+.session-cards-container {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     gap: 2rem;
 }
 
-@media (max-width: 768px) {
-    .athlete-plan-split {
-        grid-template-columns: 1fr;
-    }
+.session-card {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    padding: 2rem;
+    position: relative;
+    overflow: hidden;
+    transition: var(--transition);
 }
 
-.plan-col {
-    background: rgba(0,0,0,0.3);
-    padding: 1.5rem;
-    border-radius: 8px;
-    border-left: 2px solid #555;
+.session-card:hover {
+    transform: translateY(-5px);
+    border-color: rgba(255,255,255,0.2);
 }
 
-.plan-col h5 {
-    font-size: 1.2rem;
-    margin-bottom: 1rem;
+.session-type-badge {
+    position: absolute;
+    top: 0;
+    right: 0;
+    padding: 0.4rem 1rem;
+    font-size: 0.75rem;
+    font-weight: 800;
     letter-spacing: 1px;
+    border-bottom-left-radius: 12px;
+    color: var(--bg-primary);
 }
 
-.vitor-accent { color: #fff; } /* Or another distinct color */
-.darragh-accent { color: #fff; }
+/* Session Type Colors */
+.type-r { background: #ff3366; } /* Run */
+.type-s { background: #00ffcc; } /* Station */
+.type-c { background: #ffcc00; } /* Combo */
+.type-str { background: #9900ff; } /* Strength */
+.type-j { background: var(--neon-blue); } /* Joint */
 
-.plan-col ul {
-    list-style-type: disc;
-    padding-left: 1.2rem;
-    color: #ddd;
-}
-.plan-col ul li {
+.session-day {
+    font-family: var(--font-heading);
+    color: var(--text-secondary);
+    font-size: 0.9rem;
     margin-bottom: 0.5rem;
-    font-size: 0.95rem;
+    display: block;
 }
 
-/* Joint Session Highlight */
-.joint-sessions {
-    max-width: 900px;
-    margin-left: auto;
-    margin-right: auto;
-    border-left: 4px solid var(--neon-blue);
-    background: linear-gradient(90deg, rgba(0, 255, 255, 0.05) 0%, transparent 100%);
-}
-
-.joint-header {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
+.session-title {
+    font-size: 1.4rem;
     margin-bottom: 1rem;
-    color: var(--neon-blue);
+    color: var(--text-primary);
 }
 
-.joint-header i {
-    font-size: 2rem;
+.session-details {
+    color: var(--text-secondary);
+    font-size: 1rem;
 }
 
-.joint-list {
-    list-style: none;
-    margin-top: 1rem;
+.session-details strong {
+    color: var(--text-primary);
 }
 
-.joint-list li {
-    margin-bottom: 0.5rem;
-    padding: 0.5rem;
+.no-session-msg {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 4rem;
+    color: var(--text-secondary);
+    font-style: italic;
     background: rgba(255,255,255,0.02);
-    border-radius: 4px;
+    border-radius: 12px;
 }
-.joint-list li strong { color: var(--text-primary); }
 
 /* Footer */
 footer {
