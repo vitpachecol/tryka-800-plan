@@ -344,3 +344,20 @@ document.addEventListener('DOMContentLoaded', () => {
         heroBg.style.transform = `scale(1.05) translateY(${scrollY * 0.3}px)`;
     }, { passive: true });
 })();
+
+// =============================================
+// BAR ANIMATIONS — feat/bar-animations
+// =============================================
+(function initBarAnimations() {
+    const bars = document.querySelectorAll('.bar[data-width]');
+    if (!bars.length) return;
+    const barObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.width = entry.target.dataset.width;
+                barObserver.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.3 });
+    bars.forEach(bar => barObserver.observe(bar));
+})();
