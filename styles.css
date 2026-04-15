@@ -672,3 +672,14 @@ footer {
     will-change: transform;
     transition: transform 0.05s linear;
 }
+
+/* =============================================
+   STICKY NAV & MOBILE SWIPE — feat/navigation
+   ============================================= */
+.sticky-nav { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; background: rgba(10,10,10,0.92); backdrop-filter: blur(12px); border-bottom: 1px solid var(--card-border); padding: 0.75rem 2rem; opacity: 0; transform: translateY(-100%); transition: opacity 0.4s ease, transform 0.4s ease; pointer-events: none; }
+.sticky-nav.visible { opacity: 1; transform: translateY(0); pointer-events: all; }
+.sticky-nav-inner { max-width: 1200px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; }
+.sticky-nav-brand { font-family: var(--font-heading); font-weight: 900; font-size: 1.1rem; color: var(--neon-green); letter-spacing: 2px; text-shadow: 0 0 8px var(--neon-green-glow); }
+.sticky-nav-links { display: flex; gap: 2rem; }
+.sticky-nav-links a { color: var(--text-secondary); text-decoration: none; font-family: var(--font-heading); font-size: 0.85rem; letter-spacing: 2px; text-transform: uppercase; transition: color 0.2s ease; }
+.sticky-nav-links a:hover { color: var(--neon-green); }
