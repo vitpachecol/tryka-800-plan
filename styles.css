@@ -7,6 +7,7 @@
     --neon-green: #bcff00;
     --neon-green-glow: rgba(188, 255, 0, 0.4);
     --neon-blue: #00ffff;
+    --rest-badge: #555566;
     --card-bg: rgba(255, 255, 255, 0.03);
     --card-border: rgba(255, 255, 255, 0.08);
 
@@ -573,7 +574,7 @@ ul.neon-bullets li::before {
 .type-c    { background: #ffcc00; }          /* Combo */
 .type-str  { background: #9900ff; }          /* Strength */
 .type-j    { background: var(--neon-blue); } /* Joint */
-.type-rest { background: #555566; color: var(--text-primary); } /* Rest */
+.type-rest { background: var(--rest-badge); color: var(--text-primary); } /* Rest */
 
 .session-day {
     font-family: var(--font-heading);

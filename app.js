@@ -246,13 +246,17 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function getSessionDurationMs(type) {
-        const mins = { r: 45, s: 60, c: 75, str: 60, j: 90, rest: 30 };
-        return (mins[type] || 60) * 60 * 1000;
+        // Duration in minutes per session type
+        const SESSION_DURATIONS_MINUTES = { r: 45, s: 60, c: 75, str: 60, j: 90, rest: 30 };
+        return (SESSION_DURATIONS_MINUTES[type] || 60) * 60 * 1000;
     }
 
     // --- localStorage Helpers ---
     const LS_PLANNED   = 'tryka800-planned';
     const LS_COMPLETED = 'tryka800-completed';
+
+    // Em dash used in calendar event summaries
+    const EM_DASH = '\u2014';
 
     function _loadStore(key) {
         try { return JSON.parse(localStorage.getItem(key) || '{}'); } catch (e) { return {}; }
@@ -285,7 +289,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const dtend = new Date(dtstart.getTime() + getSessionDurationMs(session.type));
         return {
             uid: `w${weekNum}-${athlete}-${sessionIndex}`,
-            summary: `TRYKA 800 \u2014 ${session.title} (${capitalize(athlete)})`,
+            summary: `TRYKA 800 ${EM_DASH} ${session.title} (${capitalize(athlete)})`,
             description: `${session.details}\n\nPhase: ${phase.name}\nWeek ${weekNum}: ${phase.focus}`,
             dtstart,
             dtend,
@@ -300,7 +304,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const dtend = new Date(dtstart.getTime() + getSessionDurationMs('j'));
         return {
             uid: `w${weekNum}-joint-0`,
-            summary: `TRYKA 800 \u2014 ${jointData.focus} (Joint Session)`,
+            summary: `TRYKA 800 ${EM_DASH} ${jointData.focus} (Joint Session)`,
             description: `${jointData.details}\n\nPhase: ${phase.name}\nWeek ${weekNum}: ${phase.focus}`,
             dtstart,
             dtend,
@@ -434,13 +438,13 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!bannerEl) return;
         if (currentAthlete === 'joint') { bannerEl.style.display = 'none'; return; }
 
-        const todayMidnight = new Date();
-        todayMidnight.setHours(0, 0, 0, 0);
+        const startOfToday = new Date();
+        startOfToday.setHours(0, 0, 0, 0);
         const missed = [];
         for (let w = 1; w <= 11; w++) {
             const sessions = trainingData.weeks[w][currentAthlete];
             sessions.forEach((session, idx) => {
-                if (getSessionDate(w, idx, sessions.length) < todayMidnight &&
+                if (getSessionDate(w, idx, sessions.length) < startOfToday &&
                     !isCompleted(`w${w}-${currentAthlete}-${idx}`)) {
                     missed.push({ w, idx, session });
                 }
@@ -469,7 +473,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const phase = trainingData.phases.find(p => p.weeks.includes(w));
             const eventData = {
                 uid: `w${w}-${currentAthlete}-${idx}-reschedule`,
-                summary: `TRYKA 800 \u2014 ${session.title} (${capitalize(currentAthlete)}) [Rescheduled]`,
+                summary: `TRYKA 800 ${EM_DASH} ${session.title} (${capitalize(currentAthlete)}) [Rescheduled]`,
                 description: `${session.details}\n\nRescheduled from Week ${w}\nPhase: ${phase.name}`,
                 dtstart: tomorrow,
                 dtend,
