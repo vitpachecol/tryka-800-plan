@@ -331,3 +331,16 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 });
+
+// =============================================
+// PARALLAX HERO — feat/scroll-animations
+// =============================================
+(function initParallax() {
+    const heroBg = document.querySelector('.hero-bg');
+    if (!heroBg) return;
+
+    window.addEventListener('scroll', () => {
+        const scrollY = window.scrollY;
+        heroBg.style.transform = `scale(1.05) translateY(${scrollY * 0.3}px)`;
+    }, { passive: true });
+})();
