@@ -361,8 +361,3 @@ document.addEventListener('DOMContentLoaded', () => {
     }, { threshold: 0.3 });
     bars.forEach(bar => barObserver.observe(bar));
 })();
-// ATHLETE CARD FLIP — feat/athlete-cards
-(function initCardFlip() {
-    document.querySelectorAll('.profile-card').forEach(card => {
-        card.addEventListener('click', () => card.classList.toggle('flipped'));
-    });
