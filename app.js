@@ -238,39 +238,14 @@ document.addEventListener('DOMContentLoaded', () => {
         return d;
     }
 
-    function getJointSessionDate(weekNum) {
-        const d = new Date(WEEK_1_START);
-        d.setDate(d.getDate() + (weekNum - 1) * 7 + 5); // Saturday of the week
-        d.setHours(10, 0, 0, 0);
-        return d;
-    }
-
-    function getSessionDurationMs(type) {
-        // Duration in minutes per session type
-        const SESSION_DURATIONS_MINUTES = { r: 45, s: 60, c: 75, str: 60, j: 90, rest: 30 };
-        return (SESSION_DURATIONS_MINUTES[type] || 60) * 60 * 1000;
-    }
-
     // --- localStorage Helpers ---
-    const LS_PLANNED   = 'tryka800-planned';
     const LS_COMPLETED = 'tryka800-completed';
-
-    // Em dash used in calendar event summaries
-    const EM_DASH = '\u2014';
 
     function _loadStore(key) {
         try { return JSON.parse(localStorage.getItem(key) || '{}'); } catch (e) { return {}; }
     }
 
-    function isPlanned(uid)   { return !!_loadStore(LS_PLANNED)[uid]; }
     function isCompleted(uid) { return !!_loadStore(LS_COMPLETED)[uid]; }
-
-    function setPlanned(uid, val) {
-        if (val === undefined) val = true;
-        const store = _loadStore(LS_PLANNED);
-        if (val) store[uid] = true; else delete store[uid];
-        localStorage.setItem(LS_PLANNED, JSON.stringify(store));
-    }
 
     function setCompleted(uid, val) {
         if (val === undefined) val = true;
@@ -279,90 +254,22 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem(LS_COMPLETED, JSON.stringify(store));
     }
 
-    // --- Calendar Event Data Builders ---
-    function capitalize(str) { return str.charAt(0).toUpperCase() + str.slice(1); }
-
-    function isMobileDevice() {
-        if (navigator.userAgentData && typeof navigator.userAgentData.mobile === 'boolean') {
-            return navigator.userAgentData.mobile;
-        }
-        return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent || '');
-    }
-
-    function buildEventData(weekNum, athlete, sessionIndex, session) {
-        const phase = trainingData.phases.find(p => p.weeks.includes(weekNum));
-        const sessions = trainingData.weeks[weekNum][athlete];
-        const dtstart = getSessionDate(weekNum, sessionIndex, sessions.length);
-        const dtend = new Date(dtstart.getTime() + getSessionDurationMs(session.type));
-        return {
-            uid: `w${weekNum}-${athlete}-${sessionIndex}`,
-            summary: `TRYKA 800 ${EM_DASH} ${session.title} (${capitalize(athlete)})`,
-            description: `${session.details}\n\nPhase: ${phase.name}\nWeek ${weekNum}: ${phase.focus}`,
-            dtstart,
-            dtend,
-        };
-    }
-
-    function buildJointEventData(weekNum) {
-        const jointData = trainingData.weeks[weekNum].joint;
-        if (!jointData) return null;
-        const phase = trainingData.phases.find(p => p.weeks.includes(weekNum));
-        const dtstart = getJointSessionDate(weekNum);
-        const dtend = new Date(dtstart.getTime() + getSessionDurationMs('j'));
-        return {
-            uid: `w${weekNum}-joint-0`,
-            summary: `TRYKA 800 ${EM_DASH} ${jointData.focus} (Joint Session)`,
-            description: `${jointData.details}\n\nPhase: ${phase.name}\nWeek ${weekNum}: ${phase.focus}`,
-            dtstart,
-            dtend,
-        };
-    }
-
-    // --- Calendar Export Actions ---
-    function handleCalAction(action, weekNum, athlete, idx) {
-        if (typeof TrykaCalendar === 'undefined') return;
-        const isJoint = athlete === 'joint';
-        const eventData = isJoint
-            ? buildJointEventData(weekNum)
-            : buildEventData(weekNum, athlete, idx, trainingData.weeks[weekNum][athlete][idx]);
-        if (!eventData) return;
-
-        if (action === 'ics') {
-            const cal = TrykaCalendar.buildIcsCalendar([TrykaCalendar.buildIcsEvent(eventData)]);
-            const fname = isJoint
-                ? `tryka800-w${weekNum}-joint.ics`
-                : `tryka800-w${weekNum}-session${idx + 1}-${athlete}.ics`;
-            TrykaCalendar.downloadIcs(cal, fname);
-        } else if (action === 'google') {
-            window.open(TrykaCalendar.buildGoogleCalendarUrl(eventData), '_blank');
-        } else if (action === 'outlook') {
-            window.open(TrykaCalendar.buildOutlookUrl(eventData), '_blank');
-        }
-
-        setPlanned(eventData.uid);
-        updateWeekBtnBadges();
-        renderSessions();
-    }
-
     // --- Progress & Missed-Session Helpers ---
     function updateWeekBtnBadges() {
         for (let w = 1; w <= 11; w++) {
             const btn = document.querySelector(`.week-btn[data-week="${w}"]`);
             if (!btn) continue;
-            let anyPlanned = false, anyCompleted = false;
+            let anyCompleted = false;
             ['vitor', 'darragh'].forEach(athlete => {
                 trainingData.weeks[w][athlete].forEach((_, idx) => {
                     const uid = `w${w}-${athlete}-${idx}`;
-                    if (isPlanned(uid))   anyPlanned   = true;
                     if (isCompleted(uid)) anyCompleted = true;
                 });
             });
             if (trainingData.weeks[w].joint) {
                 const uid = `w${w}-joint-0`;
-                if (isPlanned(uid))   anyPlanned   = true;
                 if (isCompleted(uid)) anyCompleted = true;
             }
-            btn.classList.toggle('has-planned',   anyPlanned);
             btn.classList.toggle('has-completed', anyCompleted);
         }
     }
@@ -375,23 +282,18 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!jointData) { el.textContent = ''; return; }
             const uid = `w${currentWeek}-joint-0`;
             el.innerHTML = `Week ${currentWeek}: ` +
-                (isPlanned(uid)
-                    ? '<span class="ps-done">exported</span>'
-                    : '<span class="ps-pending">not exported</span>') +
-                (isCompleted(uid) ? ' &middot; <span class="ps-done">done ✓</span>' : '');
+                (isCompleted(uid) ? '<span class="ps-done">done ✓</span>' : '<span class="ps-pending">not done</span>');
             return;
         }
         const sessions = trainingData.weeks[currentWeek][currentAthlete];
-        let plannedCount = 0, completedCount = 0;
+        let completedCount = 0;
         sessions.forEach((_, idx) => {
             const uid = `w${currentWeek}-${currentAthlete}-${idx}`;
-            if (isPlanned(uid))   plannedCount++;
             if (isCompleted(uid)) completedCount++;
         });
         el.innerHTML =
             `Week ${currentWeek}: ` +
-            `<span class="${plannedCount > 0 ? 'ps-done' : 'ps-pending'}">${plannedCount}/${sessions.length} exported</span>` +
-            ` &middot; <span class="${completedCount > 0 ? 'ps-done' : 'ps-pending'}">${completedCount}/${sessions.length} done</span>`;
+            `<span class="${completedCount > 0 ? 'ps-done' : 'ps-pending'}">${completedCount}/${sessions.length} done</span>`;
     }
 
     function checkMissedSessions() {
@@ -458,43 +360,8 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
 
-        // Session card event delegation — cal-btn, cal-option, done-check
+        // Session card event delegation — done-check
         sessionContainer.addEventListener('click', e => {
-            const calBtn = e.target.closest('.cal-btn');
-            if (calBtn) {
-                e.stopPropagation();
-                const card = calBtn.closest('.session-card');
-                if (isMobileDevice() && card) {
-                    handleCalAction(
-                        'ics',
-                        parseInt(card.dataset.week, 10),
-                        card.dataset.athlete,
-                        parseInt(card.dataset.idx, 10)
-                    );
-                    return;
-                }
-                const wrap = calBtn.closest('.cal-btn-wrap');
-                const dropdown = wrap.querySelector('.cal-dropdown');
-                const wasOpen = dropdown.classList.contains('open');
-                document.querySelectorAll('.cal-dropdown.open').forEach(d => d.classList.remove('open'));
-                if (!wasOpen) dropdown.classList.add('open');
-                return;
-            }
-
-            const calOption = e.target.closest('.cal-option');
-            if (calOption) {
-                e.stopPropagation();
-                const card = calOption.closest('.session-card');
-                handleCalAction(
-                    calOption.dataset.action,
-                    parseInt(card.dataset.week),
-                    card.dataset.athlete,
-                    parseInt(card.dataset.idx)
-                );
-                calOption.closest('.cal-dropdown').classList.remove('open');
-                return;
-            }
-
             const doneCheck = e.target.closest('.done-check');
             if (doneCheck) {
                 const card = doneCheck.closest('.session-card');
@@ -515,11 +382,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        // Close cal-dropdowns when clicking outside any card
-        document.addEventListener('click', () => {
-            document.querySelectorAll('.cal-dropdown.open').forEach(d => d.classList.remove('open'));
-        });
-
         renderSessions();
         updateWeekBtnBadges();
     }
@@ -535,7 +397,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const jointData = trainingData.weeks[currentWeek].joint;
             if (jointData) {
                 const uid = `w${currentWeek}-joint-0`;
-                const planned   = isPlanned(uid);
                 const completed = isCompleted(uid);
                 const card = document.createElement('div');
                 card.className = `session-card reveal active${completed ? ' card-completed' : ''}`;
@@ -544,18 +405,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 card.dataset.idx     = 0;
                 card.innerHTML = `
                     <span class="session-type-badge type-j">JOINT</span>
-                    <span class="session-day">WEEK ${currentWeek} FOCUS${planned ? '<span class="planned-dot" title="Exported to calendar"></span>' : ''}${completed ? '<span class="completed-check-badge" title="Marked as done"> ✓</span>' : ''}</span>
+                    <span class="session-day">WEEK ${currentWeek} FOCUS${completed ? '<span class="completed-check-badge" title="Marked as done"> ✓</span>' : ''}</span>
                     <h3 class="session-title">${jointData.focus}</h3>
                     <p class="session-details">${jointData.details}</p>
                     <div class="card-footer">
-                        <div class="cal-btn-wrap">
-                            <button class="cal-btn" aria-label="Add to calendar"><i class="fas fa-calendar-plus"></i> Calendar</button>
-                            <div class="cal-dropdown">
-                                <button class="cal-option" data-action="ics">📅 Download .ics</button>
-                                <button class="cal-option" data-action="google">📆 Google Calendar</button>
-                                <button class="cal-option" data-action="outlook">📧 Outlook Web</button>
-                            </div>
-                        </div>
                         <label class="done-wrap"><input type="checkbox" class="done-check"${completed ? ' checked' : ''}> Done</label>
                     </div>
                 `;
@@ -571,7 +424,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const sessions = trainingData.weeks[currentWeek][currentAthlete];
         sessions.forEach((session, index) => {
             const uid       = `w${currentWeek}-${currentAthlete}-${index}`;
-            const planned   = isPlanned(uid);
             const completed = isCompleted(uid);
             const card = document.createElement('div');
             card.className = `session-card reveal active${completed ? ' card-completed' : ''}`;
@@ -580,18 +432,10 @@ document.addEventListener('DOMContentLoaded', () => {
             card.dataset.idx     = index;
             card.innerHTML = `
                 <span class="session-type-badge type-${session.type}">${getBadgeName(session.type)}</span>
-                <span class="session-day">SESSION ${index + 1}${planned ? '<span class="planned-dot" title="Exported to calendar"></span>' : ''}${completed ? '<span class="completed-check-badge" title="Marked as done"> ✓</span>' : ''}</span>
+                <span class="session-day">SESSION ${index + 1}${completed ? '<span class="completed-check-badge" title="Marked as done"> ✓</span>' : ''}</span>
                 <h3 class="session-title">${session.title}</h3>
                 <p class="session-details">${session.details}</p>
                 <div class="card-footer">
-                    <div class="cal-btn-wrap">
-                        <button class="cal-btn" aria-label="Add to calendar"><i class="fas fa-calendar-plus"></i> Calendar</button>
-                        <div class="cal-dropdown">
-                            <button class="cal-option" data-action="ics">📅 Download .ics</button>
-                            <button class="cal-option" data-action="google">📆 Google Calendar</button>
-                            <button class="cal-option" data-action="outlook">📧 Outlook Web</button>
-                        </div>
-                    </div>
                     <label class="done-wrap"><input type="checkbox" class="done-check"${completed ? ' checked' : ''}> Done</label>
                 </div>
             `;
