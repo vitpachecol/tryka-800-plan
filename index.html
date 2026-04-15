@@ -205,12 +205,23 @@
                             <button class="athlete-btn" data-athlete="darragh">DARRAGH</button>
                             <button class="athlete-btn" data-athlete="joint">JOINT SESSIONS</button>
                         </div>
+
+                        <div class="export-bar">
+                            <button class="export-btn" id="export-week-btn">
+                                <i class="fas fa-calendar-plus"></i> Export This Week
+                            </button>
+                            <button class="export-btn" id="export-full-btn">
+                                <i class="fas fa-calendar-check"></i> Export Full Plan
+                            </button>
+                        </div>
                     </div>
 
                     <div id="dashboard-content" class="dashboard-content">
+                        <div id="missed-banner" class="missed-banner" style="display:none"></div>
                         <div class="phase-indicator">
                             <span id="current-phase-name">PHASE 1: FOUNDATION</span>
                         </div>
+                        <div id="progress-summary" class="progress-summary"></div>
                         <div id="session-cards-container" class="session-cards-container">
                             <!-- Session cards will be injected here -->
                         </div>
@@ -232,6 +243,7 @@
             </div>
         </footer>
     </div>
+    <script src="calendar.js"></script>
     <script src="app.js"></script>
 </body>
 </html>

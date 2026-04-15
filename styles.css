@@ -545,7 +545,7 @@ ul.neon-bullets li::before {
     border-radius: 12px;
     padding: 2rem;
     position: relative;
-    overflow: hidden;
+    overflow: visible;
     transition: var(--transition);
 }
 
@@ -563,15 +563,17 @@ ul.neon-bullets li::before {
     font-weight: 800;
     letter-spacing: 1px;
     border-bottom-left-radius: 12px;
+    border-top-right-radius: 12px;
     color: var(--bg-primary);
 }
 
 /* Session Type Colors */
-.type-r { background: #ff3366; } /* Run */
-.type-s { background: #00ffcc; } /* Station */
-.type-c { background: #ffcc00; } /* Combo */
-.type-str { background: #9900ff; } /* Strength */
-.type-j { background: var(--neon-blue); } /* Joint */
+.type-r    { background: #ff3366; }          /* Run */
+.type-s    { background: #00ffcc; }          /* Station */
+.type-c    { background: #ffcc00; }          /* Combo */
+.type-str  { background: #9900ff; }          /* Strength */
+.type-j    { background: var(--neon-blue); } /* Joint */
+.type-rest { background: #555566; color: var(--text-primary); } /* Rest */
 
 .session-day {
     font-family: var(--font-heading);
@@ -713,4 +715,246 @@ h1.glitch:hover::after {
     0%   { clip-path: inset(80% 0 0 0); transform: translateX(4px); }
     50%  { clip-path: inset(40% 0 40% 0); transform: translateX(-4px); }
     100% { clip-path: inset(10% 0 70% 0); transform: translateX(4px); }
+}
+
+/* =============================================
+   CALENDAR INTEGRATION
+   ============================================= */
+
+/* --- Export Bar --- */
+.export-bar {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    justify-content: center;
+    padding: 0.25rem 0;
+}
+
+.export-btn {
+    background: transparent;
+    border: 1px solid rgba(188, 255, 0, 0.4);
+    color: var(--neon-green);
+    padding: 0.55rem 1.4rem;
+    border-radius: 25px;
+    cursor: pointer;
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 0.85rem;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    white-space: nowrap;
+}
+
+.export-btn:hover {
+    background: rgba(188, 255, 0, 0.1);
+    box-shadow: 0 0 15px var(--neon-green-glow);
+}
+
+/* --- Session Card Footer --- */
+.card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--card-border);
+    gap: 0.75rem;
+}
+
+/* --- Calendar Add Button & Dropdown --- */
+.cal-btn-wrap {
+    position: relative;
+}
+
+.cal-btn {
+    background: transparent;
+    border: 1px solid rgba(188, 255, 0, 0.4);
+    color: var(--neon-green);
+    padding: 0.35rem 0.85rem;
+    border-radius: 20px;
+    cursor: pointer;
+    font-family: var(--font-heading);
+    font-size: 0.8rem;
+    font-weight: 700;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    white-space: nowrap;
+}
+
+.cal-btn:hover {
+    background: rgba(188, 255, 0, 0.1);
+    box-shadow: 0 0 10px var(--neon-green-glow);
+}
+
+.cal-dropdown {
+    display: none;
+    flex-direction: column;
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    background: #1c1c1c;
+    border: 1px solid rgba(188, 255, 0, 0.3);
+    border-radius: 8px;
+    min-width: 195px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.8), 0 0 12px rgba(188, 255, 0, 0.08);
+    z-index: 200;
+    overflow: hidden;
+}
+
+.cal-dropdown.open {
+    display: flex;
+}
+
+.cal-option {
+    background: transparent;
+    border: none;
+    color: var(--text-primary);
+    padding: 0.7rem 1rem;
+    text-align: left;
+    cursor: pointer;
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    transition: background 0.2s;
+    white-space: nowrap;
+}
+
+.cal-option:hover {
+    background: rgba(188, 255, 0, 0.1);
+    color: var(--neon-green);
+}
+
+/* --- Done Toggle --- */
+.done-wrap {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    color: var(--text-secondary);
+    font-family: var(--font-heading);
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: color 0.2s;
+    white-space: nowrap;
+}
+
+.done-wrap:hover {
+    color: var(--neon-green);
+}
+
+.done-check {
+    accent-color: var(--neon-green);
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+/* --- Planned / Completed Badges in Session-Day Line --- */
+.planned-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--neon-green);
+    box-shadow: 0 0 6px var(--neon-green-glow);
+    margin-left: 6px;
+    vertical-align: middle;
+}
+
+.completed-check-badge {
+    display: inline-block;
+    color: var(--neon-green);
+    font-size: 0.9rem;
+    font-weight: 800;
+    margin-left: 4px;
+    vertical-align: middle;
+}
+
+/* --- Completed Card State --- */
+.card-completed {
+    border-color: rgba(188, 255, 0, 0.2);
+    opacity: 0.75;
+}
+
+/* --- Week Button Badges (planned / completed indicators) --- */
+.week-btn.has-planned {
+    border-bottom: 3px solid var(--neon-green);
+}
+
+.week-btn.has-completed {
+    border-bottom: 3px solid #00ffcc;
+}
+
+/* --- Progress Summary --- */
+.progress-summary {
+    text-align: center;
+    font-family: var(--font-heading);
+    font-size: 0.88rem;
+    color: var(--text-secondary);
+    letter-spacing: 1px;
+    margin-bottom: 1.5rem;
+    min-height: 1.2em;
+}
+
+.ps-done    { color: var(--neon-green); font-weight: 700; }
+.ps-pending { color: var(--text-secondary); }
+
+/* --- Missed-Session Banner --- */
+.missed-banner {
+    background: rgba(255, 51, 102, 0.08);
+    border: 1px solid rgba(255, 51, 102, 0.35);
+    border-radius: 8px;
+    padding: 0.9rem 1.25rem;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    flex-wrap: wrap;
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+}
+
+.missed-banner i {
+    color: #ff3366;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+}
+
+.missed-banner span { flex: 1; }
+.missed-banner strong { color: #ff3366; }
+
+.reschedule-btn {
+    background: transparent;
+    border: 1px solid #ff3366;
+    color: #ff3366;
+    padding: 0.35rem 0.85rem;
+    border-radius: 20px;
+    cursor: pointer;
+    font-family: var(--font-heading);
+    font-size: 0.8rem;
+    font-weight: 700;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    white-space: nowrap;
+}
+
+.reschedule-btn:hover {
+    background: rgba(255, 51, 102, 0.1);
+}
+
+/* --- Responsive tweaks --- */
+@media (max-width: 480px) {
+    .export-btn {
+        font-size: 0.78rem;
+        padding: 0.5rem 1rem;
+    }
+    .card-footer {
+        flex-direction: column;
+        align-items: flex-start;
+    }
 }
