@@ -17,7 +17,7 @@ jobs:
     - name: Create Pull Request
       uses: peter-evans/create-pull-request@v4
       with:
-        token: ${{ secrets.GITHUB_TOKEN }}
+        token: ${{ secrets.claw }}
         commit-message: "Automated PR for changes in non-breaking-update"
         title: "[Automation] Changes from non-breaking-update"
         body: "This is an automated PR created by the assistant for testing purposes."
