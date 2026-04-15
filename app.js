@@ -361,3 +361,37 @@ document.addEventListener('DOMContentLoaded', () => {
     }, { threshold: 0.3 });
     bars.forEach(bar => barObserver.observe(bar));
 })();
+// DARK/LIGHT MODE & SHARE — feat/extras
+(function initExtras() {
+    const toggleBtn = document.getElementById('theme-toggle');
+    const themeIcon = document.getElementById('theme-icon');
+    const saved = localStorage.getItem('tryka_theme');
+    if (saved) { document.body.setAttribute('data-theme', saved); if (themeIcon) themeIcon.className = saved === 'light' ? 'fas fa-sun' : 'fas fa-moon'; }
+    if (toggleBtn) {
+        toggleBtn.addEventListener('click', () => {
+            const isLight = document.body.getAttribute('data-theme') === 'light';
+            const t = isLight ? 'dark' : 'light';
+            document.body.setAttribute('data-theme', t);
+            localStorage.setItem('tryka_theme', t);
+            if (themeIcon) themeIcon.className = t === 'light' ? 'fas fa-sun' : 'fas fa-moon';
+    }
+    const toast = document.createElement('div');
+    toast.className = 'share-toast';
+    document.body.appendChild(toast);
+    function showToast(msg) { toast.textContent = msg; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 2500); }
+
+    document.querySelectorAll('.profile-card').forEach(card => {
+        const name = card.querySelector('h3')?.textContent.trim();
+        if (!name) return;
+        const btn = document.createElement('button');
+        btn.className = 'share-btn';
+        btn.innerHTML = '<i class="fas fa-share-alt"></i> Share ' + name;
+        btn.addEventListener('click', async e => {
+            e.stopPropagation();
+            const url = window.location.href + '#athletes';
+            if (navigator.share) { try { await navigator.share({ title: 'TRYKA 800', text: 'Check out ' + name + '\'s training plan! 💪', url }); } catch(_){} }
+            else { await navigator.clipboard.writeText(url); showToast('🔗 Link copied!'); }
+        });
+        const info = card.querySelector('.profile-info');
+        if (info) info.appendChild(btn);
+    });
