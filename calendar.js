@@ -90,17 +90,27 @@ const TrykaCalendar = (() => {
      * @param {string} filename - desired filename (e.g. "tryka800-w3-vitor.ics")
      */
     function downloadIcs(content, filename) {
-        const blob = new Blob([content], { type: 'text/calendar;charset=utf-8' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = filename;
-        document.body.appendChild(a);
-        a.click();
-        setTimeout(() => {
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-        }, 100);
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+
+        if (isIOS) {
+            // Works across Safari, Chrome, and all WebKit-based iOS browsers.
+            // Navigating the current tab to a data:text/calendar URI triggers
+            // the native "Add to Calendar" sheet without being blocked as a popup.
+            window.location.href = 'data:text/calendar;charset=utf-8,' + encodeURIComponent(content);
+        } else {
+            // Android / Desktop: blob download works fine
+            const blob = new Blob([content], { type: 'text/calendar;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            setTimeout(() => {
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            }, 100);
+        }
     }
 
     // ─── External Calendar URL Builders ──────────────────────────────────────
