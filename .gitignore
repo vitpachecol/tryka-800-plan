@@ -1,1 +1,5 @@
+# Restoring original lines while keeping .github ignore
+node_modules/
+dist/
+.env
 .github/
