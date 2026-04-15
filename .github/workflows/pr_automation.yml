@@ -18,8 +18,9 @@ jobs:
       uses: peter-evans/create-pull-request@v4
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
-        commit-message: "Automated PR: Non-breaking comment addition"
-        title: "[Automation] Non-Breaking Comment Change"
-        body: "This is an automated PR created by the assistant."
+        commit-message: "Automated PR for changes in non-breaking-update"
+        title: "[Automation] Changes from non-breaking-update"
+        body: "This is an automated PR created by the assistant for testing purposes."
         branch: "non-breaking-update"
+        base: "main"
         reviewers: "vpleepkaln"
