@@ -721,3 +721,21 @@ h1.glitch:hover::after {
     50%  { transform: scale(1.2); color: var(--neon-green); text-shadow: 0 0 15px var(--neon-green-glow); }
     100% { transform: scale(1); color: #fff; }
 #seconds { animation: secondsPulse 1s ease-in-out infinite; display: inline-block; }
+
+/* =============================================
+   COUNTDOWN POLISH & CONFETTI
+   feat/countdown-polish
+   ============================================= */
+
+/* Pulse on seconds — keep it within the existing .time-box layout */
+@keyframes secondsPulse {
+    0%   { transform: scale(1); color: #fff; }
+    50%  { transform: scale(1.15); color: var(--neon-green); text-shadow: 0 0 15px var(--neon-green-glow); }
+    100% { transform: scale(1); color: #fff; }
+}
+
+/* Apply to seconds without changing display type */
+#seconds {
+    animation: secondsPulse 1s ease-in-out infinite;
+    display: block; /* matches existing .time-value layout */
+}

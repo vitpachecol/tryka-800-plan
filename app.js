@@ -373,3 +373,19 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     setInterval(checkForRaceDay, 1000);
+
+// =============================================
+// CONFETTI ON RACE DAY — feat/countdown-polish
+// =============================================
+(function initConfetti() {
+    const targetDate = new Date('July 4, 2026 09:00:00').getTime();
+    let confettiFired = false;
+    function checkForRaceDay() {
+        if (new Date().getTime() >= targetDate && !confettiFired && typeof confetti === 'function') {
+            confettiFired = true;
+            confetti({ particleCount: 300, spread: 160, origin: { y: 0.5 }, colors: ['#bcff00', '#ffffff', '#00ffff'] });
+            setTimeout(() => confetti({ particleCount: 200, spread: 120, origin: { y: 0.3 } }), 1000);
+        }
+    }
+    setInterval(checkForRaceDay, 1000);
+})();
