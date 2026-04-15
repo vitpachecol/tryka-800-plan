@@ -5,8 +5,6 @@ on:
     branches-ignore:
       - main
 
-  workflow_dispatch:
-
 jobs:
   create-pull-request:
     runs-on: ubuntu-latest
@@ -19,8 +17,13 @@ jobs:
       uses: peter-evans/create-pull-request@v4
       with:
         token: ${{ secrets.claw }}
-        commit-message: "Automated PR: Sync branch with main"
-        title: "Automated Pull Request for branch"
-        body: "This is an automatically generated pull request for syncing recent branch changes to the main branch."
+        title: "[${{ github.ref_name }}] Changes ready for review"
+        body: |
+          Automated PR created by Claw.
+          
+          Branch: `${{ github.ref_name }}`
+          
+          Please review and merge when ready.
         branch: ${{ github.ref_name }}
         base: main
+        reviewers: vitpachecol
