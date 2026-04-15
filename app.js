@@ -361,3 +361,48 @@ document.addEventListener('DOMContentLoaded', () => {
     }, { threshold: 0.3 });
     bars.forEach(bar => barObserver.observe(bar));
 })();
+// TRAINING TRACKER — feat/training-tracker
+(function initTrainingTracker() {
+    const raceDate = new Date('July 4, 2026 09:00:00');
+    const startDate = new Date(raceDate);
+    startDate.setDate(startDate.getDate() - 77);
+
+    const bar = document.getElementById('training-progress-bar');
+    const label = document.getElementById('training-progress-label');
+    if (bar && label) {
+        const weeksElapsed = Math.min(11, Math.max(0, Math.floor((new Date() - startDate) / (7*24*60*60*1000))));
+        bar.style.width = ((weeksElapsed / 11) * 100).toFixed(0) + '%';
+        label.textContent = 'WEEK ' + weeksElapsed + ' OF 11 COMPLETE';
+    }
+
+    const container = document.getElementById('session-cards-container');
+    if (!container) return;
+
+    container.addEventListener('change', e => {
+        if (!e.target.classList.contains('session-checkbox')) return;
+        const card = e.target.closest('.session-card');
+        if (e.target.checked) { localStorage.setItem(e.target.dataset.key, '1'); if (card) card.classList.add('completed'); }
+        else { localStorage.removeItem(e.target.dataset.key); if (card) card.classList.remove('completed'); }
+        updateBadge();
+    });
+
+    function updateBadge() {
+        const cbs = container.querySelectorAll('.session-checkbox');
+        let badge = container.querySelector('.week-completion-badge');
+        if (!badge) { badge = document.createElement('div'); badge.className = 'week-completion-badge'; container.appendChild(badge); }
+        badge.textContent = [...cbs].filter(c => c.checked).length + ' / ' + cbs.length + ' SESSIONS COMPLETE';
+    }
+
+    new MutationObserver(() => {
+        container.querySelectorAll('.session-card').forEach((card, i) => {
+            if (card.querySelector('.session-checkbox')) return;
+            const week = document.querySelector('.week-btn.active')?.textContent.replace('WEEK ','') || '1';
+            const athlete = document.querySelector('.athlete-btn.active')?.dataset.athlete || 'vitor';
+            const cb = document.createElement('input');
+            cb.type = 'checkbox'; cb.className = 'session-checkbox'; cb.dataset.key = 'tryka_'+week+'_'+athlete+'_'+i;
+            cb.style.cssText = 'position:absolute;top:1rem;right:1rem;';
+            if (localStorage.getItem(cb.dataset.key)) { cb.checked = true; card.classList.add('completed'); }
+            card.style.position = 'relative';
+            card.appendChild(cb);
+        updateBadge();
+    }).observe(container, { childList: true });

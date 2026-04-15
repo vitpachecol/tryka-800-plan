@@ -714,3 +714,13 @@ h1.glitch:hover::after {
     50%  { clip-path: inset(40% 0 40% 0); transform: translateX(-4px); }
     100% { clip-path: inset(10% 0 70% 0); transform: translateX(4px); }
 }
+   TRAINING TRACKER — feat/training-tracker
+.training-progress-wrap { margin-bottom: 2.5rem; text-align: center; }
+.training-progress-label { font-family: var(--font-heading); font-size: 0.85rem; letter-spacing: 2px; color: var(--text-secondary); margin-bottom: 0.75rem; }
+.training-progress-bar-outer { background: rgba(255,255,255,0.05); border-radius: 999px; height: 10px; overflow: hidden; border: 1px solid var(--card-border); max-width: 600px; margin: 0 auto; }
+.training-progress-bar-inner { height: 100%; background: var(--neon-green); box-shadow: 0 0 10px var(--neon-green-glow); border-radius: 999px; transition: width 1s ease; }
+.session-checkbox { appearance: none; -webkit-appearance: none; width: 20px; height: 20px; border: 2px solid var(--card-border); border-radius: 4px; cursor: pointer; position: relative; transition: var(--transition); flex-shrink: 0; }
+.session-checkbox:checked { background: var(--neon-green); border-color: var(--neon-green); box-shadow: 0 0 8px var(--neon-green-glow); }
+.session-checkbox:checked::after { content: '✓'; position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); color: #000; font-size: 13px; font-weight: bold; }
+.session-card.completed { opacity: 0.6; border-color: var(--neon-green); }
+.week-completion-badge { font-size: 0.8rem; color: var(--neon-green); letter-spacing: 1px; margin-top: 1rem; text-align: right; font-family: var(--font-heading); }
