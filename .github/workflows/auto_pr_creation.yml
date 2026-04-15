@@ -10,20 +10,40 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
+    - name: Create Pull Request via GitHub API
+      run: |
+        BRANCH="${{ github.ref_name }}"
+        REPO="${{ github.repository }}"
+        TITLE="[$BRANCH] Changes ready for review"
+        BODY="Automated PR created by Claw.\n\nBranch: \`$BRANCH\`\n\nPlease review and merge when ready."
 
-    - name: Create Pull Request
-      uses: peter-evans/create-pull-request@v4
-      with:
-        token: ${{ secrets.claw }}
-        title: "[${{ github.ref_name }}] Changes ready for review"
-        body: |
-          Automated PR created by Claw.
-          
-          Branch: `${{ github.ref_name }}`
-          
-          Please review and merge when ready.
-        branch: ${{ github.ref_name }}
-        base: main
-        reviewers: vitpachecol
+        # Check if PR already exists
+        EXISTING=$(curl -s -o /dev/null -w "%{http_code}" \
+          -H "Authorization: Bearer ${{ secrets.claw }}" \
+          -H "Accept: application/vnd.github+json" \
+          "https://api.github.com/repos/$REPO/pulls?head=${{ github.repository_owner }}:$BRANCH&base=main&state=open")
+
+        if [ "$EXISTING" = "200" ]; then
+          PR_COUNT=$(curl -s \
+            -H "Authorization: Bearer ${{ secrets.claw }}" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/$REPO/pulls?head=${{ github.repository_owner }}:$BRANCH&base=main&state=open" | jq length)
+
+          if [ "$PR_COUNT" -gt "0" ]; then
+            echo "PR already exists for branch $BRANCH, skipping."
+            exit 0
+          fi
+        fi
+
+        # Create the PR
+        curl -s -X POST \
+          -H "Authorization: Bearer ${{ secrets.claw }}" \
+          -H "Accept: application/vnd.github+json" \
+          https://api.github.com/repos/$REPO/pulls \
+          -d "{
+            \"title\": \"$TITLE\",
+            \"body\": \"$BODY\",
+            \"head\": \"$BRANCH\",
+            \"base\": \"main\",
+            \"draft\": false
+          }"
