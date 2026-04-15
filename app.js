@@ -282,6 +282,13 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Calendar Event Data Builders ---
     function capitalize(str) { return str.charAt(0).toUpperCase() + str.slice(1); }
 
+    function isMobileDevice() {
+        if (navigator.userAgentData && typeof navigator.userAgentData.mobile === 'boolean') {
+            return navigator.userAgentData.mobile;
+        }
+        return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent || '');
+    }
+
     function buildEventData(weekNum, athlete, sessionIndex, session) {
         const phase = trainingData.phases.find(p => p.weeks.includes(weekNum));
         const sessions = trainingData.weeks[weekNum][athlete];
@@ -333,52 +340,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         setPlanned(eventData.uid);
-        updateWeekBtnBadges();
-        renderSessions();
-    }
-
-    function exportWeek() {
-        if (typeof TrykaCalendar === 'undefined') return;
-        const events = [];
-        if (currentAthlete === 'joint') {
-            const eventData = buildJointEventData(currentWeek);
-            if (eventData) { events.push(TrykaCalendar.buildIcsEvent(eventData)); setPlanned(eventData.uid); }
-        } else {
-            trainingData.weeks[currentWeek][currentAthlete].forEach((session, idx) => {
-                const eventData = buildEventData(currentWeek, currentAthlete, idx, session);
-                events.push(TrykaCalendar.buildIcsEvent(eventData));
-                setPlanned(eventData.uid);
-            });
-        }
-        if (!events.length) return;
-        TrykaCalendar.downloadIcs(
-            TrykaCalendar.buildIcsCalendar(events),
-            `tryka800-w${currentWeek}-${currentAthlete}.ics`
-        );
-        updateWeekBtnBadges();
-        renderSessions();
-    }
-
-    function exportFullPlan() {
-        if (typeof TrykaCalendar === 'undefined') return;
-        const events = [];
-        for (let w = 1; w <= 11; w++) {
-            if (currentAthlete === 'joint') {
-                const eventData = buildJointEventData(w);
-                if (eventData) { events.push(TrykaCalendar.buildIcsEvent(eventData)); setPlanned(eventData.uid); }
-            } else {
-                trainingData.weeks[w][currentAthlete].forEach((session, idx) => {
-                    const eventData = buildEventData(w, currentAthlete, idx, session);
-                    events.push(TrykaCalendar.buildIcsEvent(eventData));
-                    setPlanned(eventData.uid);
-                });
-            }
-        }
-        if (!events.length) return;
-        TrykaCalendar.downloadIcs(
-            TrykaCalendar.buildIcsCalendar(events),
-            `tryka800-full-${currentAthlete}.ics`
-        );
         updateWeekBtnBadges();
         renderSessions();
     }
@@ -459,30 +420,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <i class="fas fa-exclamation-circle"></i>
             <span>You have <strong>${missed.length}</strong> missed session${missed.length > 1 ? 's' : ''}.
             Last: <em>${latest.session.title}</em> (Week ${latest.w}).</span>
-            <button class="reschedule-btn" aria-label="Reschedule missed session">
-                <i class="fas fa-calendar-plus"></i> Reschedule
-            </button>
         `;
-        bannerEl.querySelector('.reschedule-btn').addEventListener('click', () => {
-            if (typeof TrykaCalendar === 'undefined') return;
-            const { w, idx, session } = latest;
-            const tomorrow = new Date();
-            tomorrow.setDate(tomorrow.getDate() + 1);
-            tomorrow.setHours(7, 0, 0, 0);
-            const dtend = new Date(tomorrow.getTime() + getSessionDurationMs(session.type));
-            const phase = trainingData.phases.find(p => p.weeks.includes(w));
-            const eventData = {
-                uid: `w${w}-${currentAthlete}-${idx}-reschedule`,
-                summary: `TRYKA 800 ${EM_DASH} ${session.title} (${capitalize(currentAthlete)}) [Rescheduled]`,
-                description: `${session.details}\n\nRescheduled from Week ${w}\nPhase: ${phase.name}`,
-                dtstart: tomorrow,
-                dtend,
-            };
-            TrykaCalendar.downloadIcs(
-                TrykaCalendar.buildIcsCalendar([TrykaCalendar.buildIcsEvent(eventData)]),
-                `tryka800-w${w}-session${idx + 1}-${currentAthlete}-rescheduled.ics`
-            );
-        });
     }
 
     // --- Dashboard UI Logic ---
@@ -520,15 +458,21 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
 
-        // Export bar buttons
-        document.getElementById('export-week-btn').addEventListener('click', exportWeek);
-        document.getElementById('export-full-btn').addEventListener('click', exportFullPlan);
-
         // Session card event delegation — cal-btn, cal-option, done-check
         sessionContainer.addEventListener('click', e => {
             const calBtn = e.target.closest('.cal-btn');
             if (calBtn) {
                 e.stopPropagation();
+                const card = calBtn.closest('.session-card');
+                if (isMobileDevice() && card) {
+                    handleCalAction(
+                        'ics',
+                        parseInt(card.dataset.week, 10),
+                        card.dataset.athlete,
+                        parseInt(card.dataset.idx, 10)
+                    );
+                    return;
+                }
                 const wrap = calBtn.closest('.cal-btn-wrap');
                 const dropdown = wrap.querySelector('.cal-dropdown');
                 const wasOpen = dropdown.classList.contains('open');
