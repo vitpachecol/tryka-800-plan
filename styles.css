@@ -714,3 +714,10 @@ h1.glitch:hover::after {
     50%  { clip-path: inset(40% 0 40% 0); transform: translateX(-4px); }
     100% { clip-path: inset(10% 0 70% 0); transform: translateX(4px); }
 }
+   COUNTDOWN POLISH & CONFETTI
+   feat/countdown-polish
+@keyframes secondsPulse {
+    0%   { transform: scale(1); color: #fff; }
+    50%  { transform: scale(1.2); color: var(--neon-green); text-shadow: 0 0 15px var(--neon-green-glow); }
+    100% { transform: scale(1); color: #fff; }
+#seconds { animation: secondsPulse 1s ease-in-out infinite; display: inline-block; }
