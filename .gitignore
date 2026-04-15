@@ -1,5 +1,3 @@
-# Restore .github ignore
 node_modules/
 dist/
 .env
-.github/
