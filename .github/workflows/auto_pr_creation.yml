@@ -1,0 +1,26 @@
+name: Auto PR Creation
+
+on:
+  push:
+    branches-ignore:
+      - main
+
+  workflow_dispatch:
+
+jobs:
+  create-pull-request:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Create Pull Request
+      uses: peter-evans/create-pull-request@v4
+      with:
+        token: ${{ secrets.claw }}
+        commit-message: "Automated PR: Sync branch with main"
+        title: "Automated Pull Request for branch"
+        body: "This is an automatically generated pull request for syncing recent branch changes to the main branch."
+        branch: ${{ github.ref_name }}
+        base: main
