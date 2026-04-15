@@ -361,3 +361,24 @@ document.addEventListener('DOMContentLoaded', () => {
     }, { threshold: 0.3 });
     bars.forEach(bar => barObserver.observe(bar));
 })();
+// STICKY NAV & MOBILE SWIPE — feat/navigation
+(function initNavigation() {
+    const nav = document.querySelector('.sticky-nav');
+    if (nav) {
+        window.addEventListener('scroll', () => nav.classList.toggle('visible', window.scrollY > window.innerHeight * 0.8), { passive: true });
+        nav.querySelectorAll('a[href^="#"]').forEach(link => {
+            link.addEventListener('click', e => { e.preventDefault(); document.querySelector(link.getAttribute('href'))?.scrollIntoView({ behavior: 'smooth' }); });
+    }
+    const dashboard = document.getElementById('dashboard-content');
+    if (!dashboard) return;
+    let tx = 0, ty = 0;
+    dashboard.addEventListener('touchstart', e => { tx = e.touches[0].clientX; ty = e.touches[0].clientY; }, { passive: true });
+    dashboard.addEventListener('touchend', e => {
+        const dx = tx - e.changedTouches[0].clientX, dy = ty - e.changedTouches[0].clientY;
+        if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 50) {
+            const btns = [...document.querySelectorAll('.week-btn')];
+            const idx = btns.findIndex(b => b.classList.contains('active'));
+            if (dx > 0 && idx < btns.length - 1) btns[idx+1].click();
+            if (dx < 0 && idx > 0) btns[idx-1].click();
+        }
+    }, { passive: true });
